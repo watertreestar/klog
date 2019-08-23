@@ -13,25 +13,32 @@ public class KLoggerFactory implements ILoggerFactory {
 
 
     /**
-     * shared resource in concurrent env
+     * logger cache
      */
-    private Map<String,Logger> loggerCache = new ConcurrentHashMap<String,Logger>();
+    private Map<String,Logger> loggerCache = null;
+
+    public KLoggerFactory(){
+        loggerCache = new ConcurrentHashMap<>();
+        KLogger.lazyInit();
+    }
 
     /**
-     * 返回真实的Logger
+     * return properly logger by name
      * LoggerFactory is singleton,the method return different logger determined by different name
      * @param name
      * @return
-     * TODO : thread safe in concurrent env
+     * TODO : thread safe need in concurrent env ? DCL? CAS ? or synchronized
      *
      */
     @Override
     public Logger getLogger(String name) {
-        Logger logger = loggerCache.get(name);
-        if(logger == null){
-            logger = new KLogger(name);
-            loggerCache.put(name, logger);
+        Logger simpleLogger = loggerCache.get(name);
+        if (simpleLogger != null) {
+            return simpleLogger;
+        } else {
+            Logger newInstance = new KLogger(name);
+            Logger oldInstance = loggerCache.putIfAbsent(name, newInstance);
+            return oldInstance == null ? newInstance : oldInstance;
         }
-        return logger;
     }
 }

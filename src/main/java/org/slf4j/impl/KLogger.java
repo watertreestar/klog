@@ -2,12 +2,76 @@ package org.slf4j.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;
+import org.slf4j.spi.LocationAwareLogger;
 
 /**
  * @Date 2019/8/22 17:40
  **/
 public class KLogger implements Logger {
+
+    private String name;
+    private String levelString;
+
+    private static boolean INITIALIZED = false;
+
+    private static KLoggerConfiguration config;
+
+    protected static final int LOG_LEVEL_TRACE = LocationAwareLogger.TRACE_INT;
+    protected static final int LOG_LEVEL_DEBUG = LocationAwareLogger.DEBUG_INT;
+    protected static final int LOG_LEVEL_INFO  = LocationAwareLogger.INFO_INT;
+    protected static final int LOG_LEVEL_WARN  = LocationAwareLogger.WARN_INT;
+    protected static final int LOG_LEVEL_ERROR = LocationAwareLogger.ERROR_INT;
+    // The OFF level can only be used in configuration files to disable logging.
+    // It has
+    // no printing method associated with it in o.s.Logger interface.
+    protected static final int LOG_LEVEL_OFF   = LOG_LEVEL_ERROR + 10;
+
+    /**
+     * All system properties used by <code>KLogger</code> start with this
+     * prefix
+     */
+    public static final String SYSTEM_PREFIX = "com.knife.logger.";
+
+    public static final String LOG_KEY_PREFIX = KLogger.SYSTEM_PREFIX;
+
+    public static final String CACHE_OUTPUT_STREAM_STRING_KEY = KLogger.SYSTEM_PREFIX + "cacheOutputStream";
+
+    public static final String WARN_LEVEL_STRING_KEY = KLogger.SYSTEM_PREFIX + "warnLevelString";
+
+    public static final String LEVEL_IN_BRACKETS_KEY = KLogger.SYSTEM_PREFIX + "levelInBrackets";
+
+    public static final String LOG_FILE_KEY = KLogger.SYSTEM_PREFIX + "logFile";
+
+    public static final String SHOW_SHORT_LOG_NAME_KEY = KLogger.SYSTEM_PREFIX + "showShortLogName";
+
+    public static final String SHOW_LOG_NAME_KEY = KLogger.SYSTEM_PREFIX + "showLogName";
+
+    public static final String SHOW_THREAD_NAME_KEY = KLogger.SYSTEM_PREFIX + "showThreadName";
+
+    public static final String DATE_TIME_FORMAT_KEY = KLogger.SYSTEM_PREFIX + "dateTimeFormat";
+
+    public static final String SHOW_DATE_TIME_KEY = KLogger.SYSTEM_PREFIX + "showDateTime";
+
+    public static final String DEFAULT_LOG_LEVEL_KEY = KLogger.SYSTEM_PREFIX + "defaultLogLevel";
+
+
+
     public KLogger(String name) {
+
+    }
+
+    /**
+     * modify status of logger and init loggerConfiguration
+     */
+    static void lazyInit(){
+        if(INITIALIZED) return;
+        INITIALIZED = true;
+
+    }
+
+    static void init(){
+        config = new KLoggerConfiguration();
+        config.init();
     }
 
     @Override
