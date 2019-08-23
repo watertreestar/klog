@@ -75,3 +75,5 @@ hs_err_pid*
 .vscode/
 *.iml
 target/
+/.idea/
+/target/
